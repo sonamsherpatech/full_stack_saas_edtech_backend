@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Sequelize } from "sequelize-typescript";
 import { envConfig } from "../config/config";
 
 const sequelize = new Sequelize({
@@ -8,6 +8,7 @@ const sequelize = new Sequelize({
   host: envConfig.localHost,
   dialect: "mysql",
   port: Number(envConfig.dbPort),
+  models: [__dirname + "/models"], //current location + models
 });
 
 sequelize
@@ -18,5 +19,10 @@ sequelize
   .catch((error) => {
     console.log(error);
   });
+
+//migrate garnu paryo
+sequelize.sync({ force: false }).then(() => {
+  console.log("migrated successfully new changes");
+});
 
 export default sequelize;
