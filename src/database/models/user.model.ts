@@ -1,10 +1,4 @@
-import {
-  Table,
-  Column,
-  Model,
-  DataType,
-  PrimaryKey,
-} from "sequelize-typescript";
+import { Table, Column, Model, DataType } from "sequelize-typescript";
 
 @Table({
   tableName: "users", //uta gui ma dekhinen kura ho
@@ -32,6 +26,7 @@ class User extends Model {
 
   @Column({
     type: DataType.STRING,
+    unique: true,
   })
   declare email: string;
 

@@ -21,7 +21,7 @@ sequelize
   });
 
 //migrate garnu paryo
-sequelize.sync({ force: false }).then(() => {
+sequelize.sync({ alter: false }).then(() => {
   console.log("migrated successfully new changes");
 });
 
