@@ -38,6 +38,25 @@ import bcrypt from "bcrypt";
 //   });
 // };
 
+/**
+ * LOGIN FLOW
+ * email/username, password (basic)
+ * -> email, pasword/ username, password (select which method)
+ * -> accept email/username and password data
+ * -> Validation  (checking the correct format for email and password) if needed
+ * -> First check email exist or not (verification)
+ * -> if yes, then check password now 
+ * -> else, not registered
+ * -> if password is also correct 
+ * -> token generation (through jsonwebtoken JWT package -> identity of the entity on respective website -> is in encrypted format -> which can be decrypted)
+ * 
+ * 
+ * 
+ *  
+ * google login, fb, github (oauth),
+ * email login(SSO)
+ */
+
 class AuthController {
   static async registerUser(req: Request, res: Response) {
     if (req.body === undefined) {
@@ -59,14 +78,50 @@ class AuthController {
     // insert into Users table
     await User.create({
       username,
-      password: bcrypt.hashSync(password, 12),
+      password: bcrypt.hashSync(password, 12), //bycrypt uses blowfish algo bts -> increase in slat imporves security but decrease UX
       email,
     });
     res.status(201).json({
       message: "User registered sucessfully",
     });
   }
+
+  async loginUser(req:Request, res:Response) {
+    const {email, password} = req.body
+    if(!email || !password) {
+      res.status(400).json({
+        message: 'Please provide email, password'
+      })
+      return;
+    }
+
+    // check if email exist or not inout user table
+    const data = await User.findAll({
+      where: {
+        email
+      }
+    })
+
+    if(data.length == 0) {
+      res.status(404).json({
+        message: "Not registered!!"
+      })
+    }else {
+      // check password
+      const isPaswordMatch = bcrypt.compareSync(password,data[0].password)
+      if(isPaswordMatch) {
+        //login vayo, token generation
+      }else {
+        res.status(403).json({
+          message: "Invalid email or password"
+        })
+      }
+    }
+  }
 }
+
+
+
 
 export default AuthController;
 // export {registerUser};
