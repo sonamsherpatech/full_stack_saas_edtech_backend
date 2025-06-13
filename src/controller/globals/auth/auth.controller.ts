@@ -15,6 +15,7 @@
 import { Request, Response } from "express";
 import User from "../../../database/models/user.model";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken"
 
 // json data --> req.body //username, email, password
 // files --> req.file //files
@@ -60,7 +61,6 @@ import bcrypt from "bcrypt";
 class AuthController {
   static async registerUser(req: Request, res: Response) {
     if (req.body === undefined) {
-      console.log("triggered");
       res.status(400).json({
         message: "No data was sent!!",
       });
@@ -86,7 +86,7 @@ class AuthController {
     });
   }
 
-  async loginUser(req:Request, res:Response) {
+  static async loginUser(req:Request, res:Response) {
     const {email, password} = req.body
     if(!email || !password) {
       res.status(400).json({
@@ -111,6 +111,13 @@ class AuthController {
       const isPaswordMatch = bcrypt.compareSync(password,data[0].password)
       if(isPaswordMatch) {
         //login vayo, token generation
+        const token = jwt.sign({id:data[0].id},"thisissecrethai",{
+          expiresIn : "30d"
+        })
+
+        res.json({
+          token
+        })
       }else {
         res.status(403).json({
           message: "Invalid email or password"
