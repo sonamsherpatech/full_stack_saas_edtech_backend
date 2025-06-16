@@ -15,7 +15,7 @@
 import { Request, Response } from "express";
 import User from "../../../database/models/user.model";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 
 // json data --> req.body //username, email, password
 // files --> req.file //files
@@ -46,14 +46,14 @@ import jwt from "jsonwebtoken"
  * -> accept email/username and password data
  * -> Validation  (checking the correct format for email and password) if needed
  * -> First check email exist or not (verification)
- * -> if yes, then check password now 
+ * -> if yes, then check password now
  * -> else, not registered
- * -> if password is also correct 
+ * -> if password is also correct
  * -> token generation (through jsonwebtoken JWT package -> identity of the entity on respective website -> is in encrypted format -> which can be decrypted)
- * 
- * 
- * 
- *  
+ *
+ *
+ *
+ *
  * google login, fb, github (oauth),
  * email login(SSO)
  */
@@ -86,49 +86,47 @@ class AuthController {
     });
   }
 
-  static async loginUser(req:Request, res:Response) {
-    const {email, password} = req.body
-    if(!email || !password) {
+  static async loginUser(req: Request, res: Response) {
+    const { email, password } = req.body;
+    if (!email || !password) {
       res.status(400).json({
-        message: 'Please provide email, password'
-      })
+        message: "Please provide email, password",
+      });
       return;
     }
 
     // check if email exist or not inout user table
     const data = await User.findAll({
       where: {
-        email
-      }
-    })
+        email,
+      },
+    });
 
-    if(data.length == 0) {
+    if (data.length == 0) {
       res.status(404).json({
-        message: "Not registered!!"
-      })
-    }else {
+        message: "Not registered!!",
+      });
+    } else {
       // check password
-      const isPaswordMatch = bcrypt.compareSync(password,data[0].password)
-      if(isPaswordMatch) {
+      const isPaswordMatch = bcrypt.compareSync(password, data[0].password);
+      if (isPaswordMatch) {
         //login vayo, token generation
-        const token = jwt.sign({id:data[0].id},"thisissecrethai",{
-          expiresIn : "30d"
-        })
+        const token = jwt.sign({ id: data[0].id }, "thisissecret", {
+          expiresIn: "30d",
+        });
 
         res.json({
-          token
-        })
-      }else {
+          token,
+          message: "Logged in Success",
+        });
+      } else {
         res.status(403).json({
-          message: "Invalid email or password"
-        })
+          message: "Invalid email or password",
+        });
       }
     }
   }
 }
-
-
-
 
 export default AuthController;
 // export {registerUser};
