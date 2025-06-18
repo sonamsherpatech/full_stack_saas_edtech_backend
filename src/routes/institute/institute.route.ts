@@ -1,6 +1,7 @@
 import express, { Router } from "express";
 import InstituteController from "../../controller/institute/institute.controller";
 import Middleware from "../../middleware/middleware";
+import asyncErrorHandler from "../../services/asyncerrorhandler.service";
 
 const router: Router = express.Router();
 
@@ -11,7 +12,7 @@ router
     InstituteController.createInstitute,
     InstituteController.createTeacherTable,
     InstituteController.createStudentTable,
-    InstituteController.createCourseTable
+    asyncErrorHandler(InstituteController.createCourseTable)
   );
 
 export default router;

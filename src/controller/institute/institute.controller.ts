@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import sequelize from "../../database/connection";
-import generateRandomInstituteNumber from "../../services/generate.random.number";
+import generateRandomInstituteNumber from "../../services/generaterandomnumber.service";
 import IExtendedRequest from "../../middleware/type";
 import User from "../../database/models/user.model";
 
@@ -45,6 +45,7 @@ class InstituteController {
         instituteAddress VARCHAR(255) NOT NULL,
         institutePanNo VARCHAR(255),
         instituteVatNo VARCHAR(255),
+        instituteLogo VARCHAR(255),
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )`
@@ -96,26 +97,42 @@ class InstituteController {
           }
         );
       }
-      req.instituteNumber = instituteNumber;
+      if (req.user) {
+        req.user.currentInstituteNumber = instituteNumber;
+      }
       // req.user?.instituteNumber = instituteNumber;
       next();
     } catch (error) {
       console.log(error);
     }
   }
+
   static async createTeacherTable(
     req: IExtendedRequest,
     res: Response,
     next: NextFunction
   ) {
-    const instituteNumber = req.instituteNumber;
-    await sequelize.query(`CREATE TABLE IF NOT EXISTS teacher_${instituteNumber}(
+    try {
+      const instituteNumber = req.user?.currentInstituteNumber;
+      await sequelize.query(`CREATE TABLE IF NOT EXISTS teacher_${instituteNumber}(
       id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
       teacherName VARCHAR(255) NOT NULL,
       teacherEmail VARCHAR(255) NOT NULL UNIQUE,
-      teacherPhoneNumber VARCHAR(255) NOT NULL UNIQUE
-    )`);
-    next();
+      teacherPhoneNumber VARCHAR(255) NOT NULL UNIQUE,
+      teacherExpertise VARCHAR(255),
+      joinedDate Date,
+      salary VARCHAR(100),
+      teacherImage VARCHAR(255),
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )`);
+      next();
+    } catch (error) {
+      console.log(error + "Error");
+      res.status(500).json({
+        message: error,
+      });
+    }
   }
 
   static async createStudentTable(
@@ -123,24 +140,42 @@ class InstituteController {
     res: Response,
     next: NextFunction
   ) {
-    const instituteNumber = req.instituteNumber;
-    await sequelize.query(
-      `CREATE TABLE IF NOT EXISTS student_${instituteNumber} (
+    try {
+      const instituteNumber = req.user?.currentInstituteNumber;
+      await sequelize.query(
+        `CREATE TABLE IF NOT EXISTS student_${instituteNumber} (
         id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
         studentName VARCHAR(255) NOT NULL,
-        studentPhoneNo VARCHAR(255) NOT NULL UNIQUE 
+        studentPhoneNo VARCHAR(255) NOT NULL UNIQUE,
+        studentAddress TEXT,
+        enrolledDate DATE,
+        studentImage VARCHAR(255),
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updateAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )`
-    );
-    next();
+      );
+      next();
+    } catch (error) {
+      console.log(error + "Error");
+      res.status(500).json({
+        message: error,
+      });
+    }
   }
 
   static async createCourseTable(req: IExtendedRequest, res: Response) {
-    const { instituteNumber } = req;
+    const instituteNumber = req.user?.currentInstituteNumber;
     await sequelize.query(
       `CREATE TABLE IF NOT EXISTS course_${instituteNumber} (
         id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
         courseName VARCHAR(255) NOT NULL UNIQUE,
-        coursePrice VARCHAR(255)  NOT NULL
+        courseDescription TEXT NOT NULL,
+        coursePrice VARCHAR(255)  NOT NULL,
+        courseDuration VARCHAR(100) NOT NULL,
+        courseLevel ENUM('beginner', 'intermediate', 'advance') NOT NULL,
+        courseThumbnail VARCHAR(255),
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )`
     );
     res.status(200).json({
