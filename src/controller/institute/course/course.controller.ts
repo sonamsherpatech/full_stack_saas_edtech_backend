@@ -24,20 +24,21 @@ class CourseController {
           "Please provide courseName, courseDescription, coursePrice, courseDuration and courseLevel",
       });
     }
-    const courseThumbnail = null;
+    // console.log(req.file, "File");
+    const courseThumbnail = req.file ? req.file.path : null;
+    // console.log(courseThumbnail, "Course Thumbnail");
 
     const instituteNumber = req.user?.currentInstituteNumber;
     const returnedData = await sequelize.query(
-      `INSERT INTO course_${instituteNumber} (courseName, coursePrice, courseDescription, coursePrice, courseDuration, courseLevel,courseThumbnail) VALUES (?,?,?,?,?)`,
+      `INSERT INTO course_${instituteNumber} (courseName, coursePrice, courseDescription, courseDuration, courseLevel,courseThumbnail) VALUES (?,?,?,?,?,?)`,
       {
         replacements: [
           courseName,
           coursePrice,
           courseDescription,
-          coursePrice,
           courseDuration,
           courseLevel,
-          courseThumbnail || "https://digitalpathshala.com/image/hello.png",
+          courseThumbnail,
         ],
       }
     );

@@ -3,6 +3,7 @@ import sequelize from "../../database/connection";
 import generateRandomInstituteNumber from "../../services/generaterandomnumber.service";
 import IExtendedRequest from "../../middleware/type";
 import User from "../../database/models/user.model";
+import categories from "../../seed";
 
 class InstituteController {
   static async createInstitute(
@@ -182,6 +183,38 @@ class InstituteController {
       message: "Institute Created!!",
       instituteNumber,
     });
+  }
+
+  static async createCategoryTable(
+    req: IExtendedRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    const instituteNumber = req.user?.currentInstituteNumber;
+    try {
+      await sequelize.query(`CREATE TABLE IF NOT EXISTS category_${instituteNumber}(
+          id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+          categoryName VARCHAR(100) NOT NULL,
+          categoryDescription TEXT,
+          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )`);
+
+      categories.forEach(async (category) => {
+        await sequelize.query(
+          `INSERT INTO category_${instituteNumber} (categoryName, categoryDescription) VALUES (?,?) `,
+          {
+            replacements: [category.categoryName, category.categoryDescription],
+          }
+        );
+      });
+      next();
+    } catch (error) {
+      console.log(error, "Error");
+      res.status(500).json({
+        message: error,
+      });
+    }
   }
 }
 

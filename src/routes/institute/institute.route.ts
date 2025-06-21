@@ -12,6 +12,7 @@ router
     InstituteController.createInstitute,
     InstituteController.createTeacherTable,
     InstituteController.createStudentTable,
+    InstituteController.createCategoryTable,
     asyncErrorHandler(InstituteController.createCourseTable)
   );
 
