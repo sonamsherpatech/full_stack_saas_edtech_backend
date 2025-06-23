@@ -8,25 +8,7 @@ import CourseController from "../../../controller/institute/course/course.contro
 // const upload = multer({ storage: storage });
 
 import multer from "multer";
-import {
-  cloudinary,
-  storage,
-} from "./../../../services/cloudinaryconfig.service";
-
-const upload = multer({
-  storage: storage,
-  fileFilter: (req: Request, file: Express.Multer.File, cb: any) => {
-    const allowedFileTypes = ["image/jpeg", "image/png", "image/jpg"];
-    if (allowedFileTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only jpeg, png and jpg is supported!!"));
-    }
-  },
-  limits: {
-    fileSize: 2 * 1024 * 1024,
-  },
-});
+import upload from "../../../middleware/multerupload";
 
 const router: Router = express.Router();
 
