@@ -12,4 +12,7 @@ export const envConfig = {
   cloudName: process.env.CLOUDINARY_CLOUD_NAME,
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
+
+  nodemailerEmail: process.env.NODEMAILER_EMAIL,
+  nodemailerPassword: process.env.NODEMAILER_PASSWORD,
 };
